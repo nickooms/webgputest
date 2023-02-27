@@ -1,0 +1,23 @@
+{
+  "name": "webgputest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickooms/webgputest.git"
+  },
+  "keywords": [],
+  "author": "Nick Ooms",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nickooms/webgputest/issues"
+  },
+  "homepage": "https://github.com/nickooms/webgputest#readme",
+  "dependencies": {
+    "@webgpu/types": "^0.1.27"
+  }
+}
