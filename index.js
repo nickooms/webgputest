@@ -1,3 +1,5 @@
+import shaderCode from './index.wgsl';
+
 (async () => {
   if (!('gpu' in navigator)) {
     console.log('WebGPU is not supported. Enable chrome://flags/#enable-unsafe-webgpu flag.');
@@ -21,6 +23,7 @@
     usage: GPUBufferUsage.STORAGE,
   });
   const arrayBufferFirstMatrix = gpuBufferFirstMatrix.getMappedRange();
+
   new Float32Array(arrayBufferFirstMatrix).set(firstMatrix);
   gpuBufferFirstMatrix.unmap();
 
@@ -46,62 +49,10 @@
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
 
-  // Bind group layout and bind group
-
-  const bindGroupLayout = device.createBindGroupLayout({
-    entries: [
-      {
-        binding: 0,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: 'read-only-storage',
-        },
-      },
-      {
-        binding: 1,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: 'read-only-storage',
-        },
-      },
-      {
-        binding: 2,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: 'storage',
-        },
-      },
-    ],
-  });
-
-  const bindGroup = device.createBindGroup({
-    layout: bindGroupLayout,
-    entries: [
-      {
-        binding: 0,
-        resource: {
-          buffer: gpuBufferFirstMatrix,
-        },
-      },
-      {
-        binding: 1,
-        resource: {
-          buffer: gpuBufferSecondMatrix,
-        },
-      },
-      {
-        binding: 2,
-        resource: {
-          buffer: resultMatrixBuffer,
-        },
-      },
-    ],
-  });
-
   // Compute shader code
 
   const shaderModule = device.createShaderModule({
-    code: `
+    code: shaderCode /* `
       struct Matrix {
         size : vec2<f32>,
         numbers: array<f32>,
@@ -131,19 +82,43 @@
         let index = resultCell.y + resultCell.x * u32(secondMatrix.size.y);
         resultMatrix.numbers[index] = result;
       }
-    `,
+    ` */,
   });
 
   // Pipeline setup
 
   const computePipeline = device.createComputePipeline({
-    layout: device.createPipelineLayout({
-      bindGroupLayouts: [bindGroupLayout],
-    }),
+    layout: 'auto',
     compute: {
       module: shaderModule,
       entryPoint: 'main',
     },
+  });
+
+  // Bind group
+
+  const bindGroup = device.createBindGroup({
+    layout: computePipeline.getBindGroupLayout(0 /* index */),
+    entries: [
+      {
+        binding: 0,
+        resource: {
+          buffer: gpuBufferFirstMatrix,
+        },
+      },
+      {
+        binding: 1,
+        resource: {
+          buffer: gpuBufferSecondMatrix,
+        },
+      },
+      {
+        binding: 2,
+        resource: {
+          buffer: resultMatrixBuffer,
+        },
+      },
+    ],
   });
 
   // Commands submission
