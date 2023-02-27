@@ -1,4 +1,4 @@
-import shaderCode from './index.wgsl';
+// import shaderCode from './index.wgsl';
 
 (async () => {
   if (!('gpu' in navigator)) {
@@ -50,6 +50,7 @@ import shaderCode from './index.wgsl';
   });
 
   // Compute shader code
+  const shaderCode = await fetch('index.wgsl').then((response) => response.text());
 
   const shaderModule = device.createShaderModule({
     code: shaderCode /* `
